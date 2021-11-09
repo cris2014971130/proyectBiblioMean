@@ -22,4 +22,21 @@ const listProvider = async (req,res) => {
   return res.status(200).send({providerSchema});
 }
 
-export default {registerProvider, listProvider}
+const updateProvider = async (req,res) => {
+  if (!req.body.name || !req.body.address)
+    return res.status(400).send("Datos incompletos");
+
+  const existingProvider = await provider.findOne({name: req.body.name,address: req.body.address}); 
+  if(existingProvider) return res.status(400).send("Este Proveedor ya existe"); 
+ 
+  const providerUpdate = await provider.findByIdAndUpdate(req.body._id, {name: req.body.name, address: req.body.address});
+  return !providerUpdate ? res.status(400).send("error al editar el proveedor") : res.status(200).send({providerUpdate}); 
+}
+
+
+const deleteProvider = async (req,res) => {
+  const providerDelete = await provider.findByIdAndDelete({_id: req.params["_id"] });
+  return !providerDelete ? res.status(400).send("Proveedor no encontrado") : res.status(200).send("Proveedor Eliminado")
+}
+
+export default {registerProvider, listProvider, updateProvider, deleteProvider}

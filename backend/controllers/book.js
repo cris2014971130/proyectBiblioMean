@@ -25,5 +25,22 @@ const listBook = async (req,res) => {
   if(!bookSchema || bookSchema.length==0) return res.status(400).send("Empty Book list");
   return res.status(200).send({bookSchema});
 }
+//ejecucion interna (cuando se hace login para saber que rol tiene)
+const updateBook = async (req,res) => {
+  if (!req.body.name || !req.body.author || !req.body.yearPublication)
+    return res.status(400).send("Datos incompletos");
 
-export default {registerBook, listBook}
+  const existingBook = await book.findOne({name: req.body.name, author: req.body.author}); 
+  if(existingBook) return res.status(400).send("Este Libro ya existe"); 
+ 
+  const bookUpdate = await book.findByIdAndUpdate(req.body._id, {name:req.body.name, author: req.body.author, yearPublication: req.body.yearPublication, pages: req.body.pages, gender: req.body.gender, price: req.body.price});
+  return !bookUpdate ? res.status(400).send("error al editar el libro") : res.status(200).send({bookUpdate}); 
+}
+
+
+const deleteBook = async (req,res) => {
+  const bookDelete = await book.findByIdAndDelete({_id: req.params["_id"] });
+  return !bookDelete ? res.status(400).send("Libro no encontrado") : res.status(200).send("Libro Eliminado")
+}
+
+export default {registerBook, listBook, updateBook, deleteBook}
